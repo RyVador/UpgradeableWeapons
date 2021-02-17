@@ -1,0 +1,11 @@
+name: UpgradeableWeapons
+version: ${project.version}
+main: me.ryvador.upgradeableweapons.UpgradeableWeapons
+api-version: 1.16
+authors: [ RyVador ]
+description: Allows swords, bows, and more to be upgraded!
+depend:
+  - Vault
+commands:
+  upgrade:
+    description: Opens the upgrade GUI!
