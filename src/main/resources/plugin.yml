@@ -9,3 +9,5 @@ depend:
 commands:
   upgrade:
     description: Opens the upgrade GUI!
+  upgradebypass:
+    description: Bypasses cooldowns

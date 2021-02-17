@@ -1,6 +1,7 @@
 package me.ryvador.upgradeableweapons;
 
 
+import me.ryvador.upgradeableweapons.Commands.BypassCommand;
 import me.ryvador.upgradeableweapons.Commands.UpgradeCommand;
 import me.ryvador.upgradeableweapons.Configs.PlayerDataFile;
 import me.ryvador.upgradeableweapons.Events.InteractByEntity;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +35,7 @@ public final class UpgradeableWeapons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MenuHandler(this), this);
         getServer().getPluginManager().registerEvents(new InteractByEntity(this), this);
         getCommand("upgrade").setExecutor(new UpgradeCommand(this));
+        getCommand("upgradebypass").setExecutor(new BypassCommand(this));
 
         PlayerDataFile.setup();
         PlayerDataFile.get().options().copyDefaults(true);
@@ -257,84 +260,137 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
 
         if(swordSharpSelected){
-            EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
-            if (response.balance < 0){
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-                PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSharpSelected", false);
-                return;
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordSharpPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSharpSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                } else {
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSharpSelected", true);
+                    PlayerDataFile.save();
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    sharpness.setType(Material.LIME_STAINED_GLASS_PANE);
+                    sharpmeta.setDisplayName(ChatColor.GREEN + "Sharpness Upgrade!");
+                    sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 4);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSharpPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
             }
-            if(response.transactionSuccess()){
-                player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
-                sharpness.setType(Material.LIME_STAINED_GLASS_PANE);
-                sharpmeta.setDisplayName(ChatColor.GREEN + "Sharpness Upgrade!");
-                sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 4);
-            } else {
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-            }
+        }
+        if(PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordSharpPaid")){
+            sharpness.setType(Material.LIME_STAINED_GLASS_PANE);
+            sharpmeta.setDisplayName(ChatColor.GREEN + "Sharpness Upgrade!");
+            sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 4);
         }
         if(swordKnockSelected){
-            EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
-            if (response.balance < 0){
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-                PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordKnockSelected", false);
-                return;
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordKnockPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordKnockSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    knockback.setType(Material.LIME_STAINED_GLASS_PANE);
+                    knockmeta.setDisplayName(ChatColor.GREEN + "Knockback Upgrade!");
+                    sword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordKnockPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
             }
-            if(response.transactionSuccess()){
-                player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
-                knockback.setType(Material.LIME_STAINED_GLASS_PANE);
-                knockmeta.setDisplayName(ChatColor.GREEN + "Knockback Upgrade!");
-                sword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
-            } else {
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-            }
+        }
+        if(PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordKnockPaid")){
+            knockback.setType(Material.LIME_STAINED_GLASS_PANE);
+            knockmeta.setDisplayName(ChatColor.GREEN + "Knockback Upgrade!");
+            sword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
         }
         if(swordFireSelected){
-            EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
-            if (response.balance < 0){
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-                PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordFireSelected", false);
-                return;
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordFirePaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordFireSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    fire.setType(Material.LIME_STAINED_GLASS_PANE);
+                    firemeta.setDisplayName(ChatColor.GREEN + "Fire Aspect Upgrade!");
+                    sword.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordFirePaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
             }
-            if(response.transactionSuccess()){
-                player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
-                fire.setType(Material.LIME_STAINED_GLASS_PANE);
-                firemeta.setDisplayName(ChatColor.GREEN + "Fire Aspect Upgrade!");
-                sword.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
-            } else {
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-            }
+        }
+        if(PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordFirePaid")){
+            fire.setType(Material.LIME_STAINED_GLASS_PANE);
+            firemeta.setDisplayName(ChatColor.GREEN + "Fire Aspect Upgrade!");
+            sword.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
         }
         if(swordSmiteSelected){
-            EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
-            if (response.balance < 0){
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-                PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSmiteSelected", false);
-                return;
-            }
-            if(response.transactionSuccess()){
-                player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
-                smite.setType(Material.LIME_STAINED_GLASS_PANE);
-                smitemeta.setDisplayName(ChatColor.GREEN + "Smite Upgrade!");
-                sword.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 4);
-            } else {
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordSmitePaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSmiteSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    smite.setType(Material.LIME_STAINED_GLASS_PANE);
+                    smitemeta.setDisplayName(ChatColor.GREEN + "Smite Upgrade!");
+                    sword.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 4);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSmitePaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
             }
         }
+        if(PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordSmitePaid")){
+            smite.setType(Material.LIME_STAINED_GLASS_PANE);
+            smitemeta.setDisplayName(ChatColor.GREEN + "Smite Upgrade!");
+            sword.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 4);
+        }
         if (swordUnbreakSelected){
-            EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
-            if (response.balance < 0){
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-                PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordUnbreakSelected", false);
-                return;
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordUnbreakPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordUnbreakSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    unbreaking.setType(Material.LIME_STAINED_GLASS_PANE);
+                    unbreakmeta.setDisplayName(ChatColor.GREEN + "Unbreaking Upgrade!");
+                    sword.addUnsafeEnchantment(Enchantment.DURABILITY, 5);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordUnbreakPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
             }
-            if(response.transactionSuccess()){
-                player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
-                unbreaking.setType(Material.LIME_STAINED_GLASS_PANE);
-                unbreakmeta.setDisplayName(ChatColor.GREEN + "Unbreaking Upgrade!");
-                sword.addUnsafeEnchantment(Enchantment.DURABILITY, 5);
-            } else {
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-            }
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordUnbreakPaid")){
+            unbreaking.setType(Material.LIME_STAINED_GLASS_PANE);
+            unbreakmeta.setDisplayName(ChatColor.GREEN + "Unbreaking Upgrade!");
+            sword.addUnsafeEnchantment(Enchantment.DURABILITY, 5);
         }
 
         sharpness.setItemMeta(sharpmeta);
@@ -382,24 +438,34 @@ public final class UpgradeableWeapons extends JavaPlugin {
         Economy economy = getEconomy();
 
         if(lightningSelected){
-            EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
-            if(economy.getBalance(player) < 1000.0){
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-                return;
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordLightningPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if(economy.getBalance(player) < 1000.0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.save();
+                    return;
+                }
+
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    lightning.setType(Material.LIME_STAINED_GLASS_PANE);
+                    lightningmeta.setDisplayName(ChatColor.GREEN + "Lightning Strike Upgrade!");
+                    swordmeta.setLore(lore);
+                    sword.setItemMeta(swordmeta);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordLightningPaid", true);
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
             }
 
-            if(response.transactionSuccess()){
-                player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
-                lightning.setType(Material.LIME_STAINED_GLASS_PANE);
-                lightningmeta.setDisplayName(ChatColor.GREEN + "Lightning Strike Upgrade!");
-                swordmeta.setLore(lore);
-                sword.setItemMeta(swordmeta);
-            } else {
-                player.sendMessage(ChatColor.RED + "You don't have enough money!");
-            }
 
 
-
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".swordLightningPaid")){
+            lightning.setType(Material.LIME_STAINED_GLASS_PANE);
+            lightningmeta.setDisplayName(ChatColor.GREEN + "Lightning Strike Upgrade!");
+            swordmeta.setLore(lore);
+            sword.setItemMeta(swordmeta);
         }
 
 

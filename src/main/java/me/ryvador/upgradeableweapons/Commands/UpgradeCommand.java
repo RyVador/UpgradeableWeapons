@@ -30,12 +30,26 @@ public class UpgradeCommand implements CommandExecutor {
             if(PlayerDataFile.get().contains(player.getUniqueId().toString())){
                 return true;
             } else {
+                //Player
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".data" + ".isBypassing", false);
+
+                //Swords
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSharpSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordKnockSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordFireSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordSmiteSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordUnbreakSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordLightning", false);
+
+                //Transactions
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSharpPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordKnockPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordFirePaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSmitePaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordUnbreakPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordLightningPaid", false);
+
+                //Saving
                 PlayerDataFile.save();
             }
 
