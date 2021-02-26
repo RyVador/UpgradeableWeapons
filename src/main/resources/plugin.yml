@@ -11,3 +11,5 @@ commands:
     description: Opens the upgrade GUI!
   upgradebypass:
     description: Bypasses cooldowns
+  upgraderesetdata:
+    description: Resets all player data

@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import static org.bukkit.Material.DIAMOND_AXE;
+import static org.bukkit.Material.*;
 
 public class MenuHandler implements Listener {
 
@@ -126,18 +126,48 @@ public class MenuHandler implements Listener {
                 switch (e.getCurrentItem().getType()) {
 
                     case DIAMOND_AXE:
+                        if (player.getInventory().getItemInMainHand().getType().equals(DIAMOND_AXE)){
+                            plugin.openAxeUpgradeMenu(player);
+                        } else {
+                            player.closeInventory();
+                            player.sendMessage(ChatColor.RED + "Make sure you're holding a diamond axe in your hand while selecting this option!");
+                        }
                         break;
 
                     case IRON_AXE:
+                        if (player.getInventory().getItemInMainHand().getType().equals(IRON_AXE)){
+                            plugin.openAxeUpgradeMenu(player);
+                        } else {
+                            player.closeInventory();
+                            player.sendMessage(ChatColor.RED + "Make sure you're holding an iron axe in your hand while selecting this option!");
+                        }
                         break;
 
                     case STONE_AXE:
+                        if (player.getInventory().getItemInMainHand().getType().equals(STONE_AXE)){
+                            plugin.openAxeUpgradeMenu(player);
+                        } else {
+                            player.closeInventory();
+                            player.sendMessage(ChatColor.RED + "Make sure you're holding a stone axe in your hand while selecting this option!");
+                        }
                         break;
 
                     case WOODEN_AXE:
+                        if (player.getInventory().getItemInMainHand().getType().equals(WOODEN_AXE)){
+                            plugin.openAxeUpgradeMenu(player);
+                        } else {
+                            player.closeInventory();
+                            player.sendMessage(ChatColor.RED + "Make sure you're holding a wooden axe in your hand while selecting this option!");
+                        }
                         break;
 
                     case NETHERITE_AXE:
+                        if (player.getInventory().getItemInMainHand().getType().equals(NETHERITE_AXE)){
+                            plugin.openAxeUpgradeMenu(player);
+                        } else {
+                            player.closeInventory();
+                            player.sendMessage(ChatColor.RED + "Make sure you're holding a netehrite axe in your hand while selecting this option!");
+                        }
                         break;
 
                     case BARRIER:
@@ -206,6 +236,44 @@ public class MenuHandler implements Listener {
                 player.closeInventory();
                 PlayerDataFile.save();
                 plugin.openSwordMenu2(player);
+            }
+            e.setCancelled(true);
+
+        } else if (e.getView().getTitle().equalsIgnoreCase("Choose your axe upgrades!")){
+
+
+            if(e.getCurrentItem() == null){
+                return;
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Sharpness Upgrade!")){
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeSharpSelected", true);
+                player.closeInventory();
+                PlayerDataFile.save();
+                plugin.openAxeUpgradeMenu(player);
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Sweeping Edge Upgrade!")){
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeSweepingSelected", true);
+                player.closeInventory();
+                PlayerDataFile.save();
+                plugin.openAxeUpgradeMenu(player);
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Knockback Upgrade!")){
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeKnockSelected", true);
+                player.closeInventory();
+                PlayerDataFile.save();
+                plugin.openAxeUpgradeMenu(player);
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Fire Aspect Upgrade!")){
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeFireSelected", true);
+                player.closeInventory();
+                PlayerDataFile.save();
+                plugin.openAxeUpgradeMenu(player);
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Unbreaking Upgrade!")){
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeUnbreakSelected", true);
+                player.closeInventory();
+                PlayerDataFile.save();
+                plugin.openAxeUpgradeMenu(player);
             }
             e.setCancelled(true);
 

@@ -3,6 +3,7 @@ package me.ryvador.upgradeableweapons.Configs;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,33 @@ public class PlayerDataFile {
 
     public static void reload(){
         playerData = YamlConfiguration.loadConfiguration(file);
+    }
+
+    public static void reset(){
+
+        if(file.exists()){
+
+
+            try {
+
+                file.delete();
+                file.createNewFile();
+                playerData.save(file);
+
+            } catch (IOException io){
+
+                System.out.println("Error resetting the file!");
+                System.out.println(io);
+                System.out.println(io.getCause());
+
+            }
+
+
+
+        } else {
+            return;
+        }
+
     }
 
 

@@ -36,9 +36,7 @@ public class InteractByEntity implements Listener {
 
                 if(plugin.cooldowns.containsKey(player.getName())){
 
-                    if(PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".data" + ".isBypassing")){
-                        world.strikeLightning(loc);
-                    }
+
                     if(plugin.cooldowns.get(player.getName()) > System.currentTimeMillis()){
                         long timeLeft = (plugin.cooldowns.get(player.getName()) - System.currentTimeMillis()) / 1000;
                         player.sendMessage(ChatColor.RED + "You still have " + timeLeft + " seconds in your cooldown!");
@@ -49,7 +47,9 @@ public class InteractByEntity implements Listener {
 
                 world.strikeLightning(loc);
 
-                plugin.cooldowns.put(player.getName(), System.currentTimeMillis() + (20 * 1000));
+                if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".data" + ".isBypassing")){
+                    plugin.cooldowns.put(player.getName(), System.currentTimeMillis() + (20 * 1000));
+                }
 
 
             }

@@ -2,6 +2,7 @@ package me.ryvador.upgradeableweapons;
 
 
 import me.ryvador.upgradeableweapons.Commands.BypassCommand;
+import me.ryvador.upgradeableweapons.Commands.ResetCommand;
 import me.ryvador.upgradeableweapons.Commands.UpgradeCommand;
 import me.ryvador.upgradeableweapons.Configs.PlayerDataFile;
 import me.ryvador.upgradeableweapons.Events.InteractByEntity;
@@ -36,6 +37,7 @@ public final class UpgradeableWeapons extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new InteractByEntity(this), this);
         getCommand("upgrade").setExecutor(new UpgradeCommand(this));
         getCommand("upgradebypass").setExecutor(new BypassCommand(this));
+        getCommand("upgraderesetdata").setExecutor(new ResetCommand());
 
         PlayerDataFile.setup();
         PlayerDataFile.get().options().copyDefaults(true);
@@ -453,6 +455,7 @@ public final class UpgradeableWeapons extends JavaPlugin {
                     swordmeta.setLore(lore);
                     sword.setItemMeta(swordmeta);
                     PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordLightningPaid", true);
+                    PlayerDataFile.save();
                 } else {
                     player.sendMessage(ChatColor.RED + "You don't have enough money!");
                 }
@@ -474,6 +477,38 @@ public final class UpgradeableWeapons extends JavaPlugin {
         SwordMenu.setItem(12, lightning);
 
         player.openInventory(SwordMenu);
+
+    }
+    public void openAxeUpgradeMenu(Player player){
+
+        Inventory axeMenu = Bukkit.createInventory(player, 27, "Choose your axe upgrades!");
+
+        ItemStack sharpness = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemStack sweeping = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemStack knockback = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemStack fire = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemStack unbreaking = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemStack next = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+
+        ItemMeta sharpMeta = sharpness.getItemMeta();
+        ItemMeta sweepMeta = sweeping.getItemMeta();
+        ItemMeta knockmMeta = knockback.getItemMeta();
+        ItemMeta fireMeta = fire.getItemMeta();
+        ItemMeta unbreakMeta = unbreaking.getItemMeta();
+        ItemMeta nextMeta = next.getItemMeta();
+
+
+        sharpMeta.setDisplayName(ChatColor.RED + "Sharpness Upgrade!");
+        sweepMeta.setDisplayName(ChatColor.RED + "Sweeping Edge Upgrade!");
+        knockmMeta.setDisplayName(ChatColor.RED + "Knockback Upgrade!");
+        fireMeta.setDisplayName(ChatColor.RED + "Fire Aspect Upgrade!");
+        unbreakMeta.setDisplayName(ChatColor.RED + "Unbreaking Upgrade!");
+        nextMeta.setDisplayName(ChatColor.AQUA + "Next Page!");
+
+        Economy economy = getEconomy();
+
+
+        player.openInventory(axeMenu);
 
     }
 

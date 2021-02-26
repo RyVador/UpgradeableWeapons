@@ -41,6 +41,13 @@ public class UpgradeCommand implements CommandExecutor {
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordUnbreakSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".swordData" + ".swordLightning", false);
 
+                //Axe
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeSharpSelected", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeSweepingSelected", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeKnockSelected", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeFireSelected", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeUnbreakSelected", false);
+
                 //Transactions
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSharpPaid", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordKnockPaid", false);
@@ -48,6 +55,11 @@ public class UpgradeCommand implements CommandExecutor {
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSmitePaid", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordUnbreakPaid", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordLightningPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeSharpPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeSweepingPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeknockPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeFirePaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeUnbreakPaid", false);
 
                 //Saving
                 PlayerDataFile.save();
