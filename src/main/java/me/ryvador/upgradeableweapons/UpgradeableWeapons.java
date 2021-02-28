@@ -68,6 +68,7 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
         ArrayList<String> lore = new ArrayList<String>();
         lore.add(ChatColor.AQUA + "Right click an entity to spawn a lightning bolt!");
+        meta.setLore(lore);
         meta.setDisplayName(ChatColor.BLUE + "Lightning Sword");
 
         item.setItemMeta(meta);
