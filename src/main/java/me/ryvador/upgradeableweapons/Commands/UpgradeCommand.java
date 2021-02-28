@@ -47,6 +47,7 @@ public class UpgradeCommand implements CommandExecutor {
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeKnockSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeFireSelected", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeUnbreakSelected", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeEffectSelected", false);
 
                 //Transactions
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".swordSharpPaid", false);
@@ -60,6 +61,7 @@ public class UpgradeCommand implements CommandExecutor {
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeknockPaid", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeFirePaid", false);
                 PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeUnbreakPaid", false);
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeEffectPaid", false);
 
                 //Saving
                 PlayerDataFile.save();

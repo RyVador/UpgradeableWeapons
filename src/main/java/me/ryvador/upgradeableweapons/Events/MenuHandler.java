@@ -275,6 +275,27 @@ public class MenuHandler implements Listener {
                 PlayerDataFile.save();
                 plugin.openAxeUpgradeMenu(player);
             }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.AQUA + "Next Page!")){
+                player.closeInventory();
+                plugin.openAxeMenu2(player);
+            }
+            e.setCancelled(true);
+
+        } else if (e.getView().getTitle().equalsIgnoreCase("Choose your axe upgrades! (Page 2)")){
+
+            if (e.getCurrentItem() == null){
+                return;
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Random Effect Upgrade!")){
+                PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeEffectSelected", true);
+                player.closeInventory();
+                PlayerDataFile.save();
+                plugin.openAxeMenu2(player);
+            }
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.AQUA + "Previous Page!")){
+                player.closeInventory();
+                plugin.openAxeUpgradeMenu(player);
+            }
             e.setCancelled(true);
 
         }

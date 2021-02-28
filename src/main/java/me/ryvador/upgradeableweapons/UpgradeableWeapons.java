@@ -12,12 +12,12 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,13 +31,22 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
     private static Economy econ = null;
 
+
     @Override
     public void onEnable() {
+
+        //events
         getServer().getPluginManager().registerEvents(new MenuHandler(this), this);
         getServer().getPluginManager().registerEvents(new InteractByEntity(this), this);
+
+        //commands
         getCommand("upgrade").setExecutor(new UpgradeCommand(this));
         getCommand("upgradebypass").setExecutor(new BypassCommand(this));
         getCommand("upgraderesetdata").setExecutor(new ResetCommand());
+
+        //recipes
+        Bukkit.addRecipe(getSwordRecipe());
+
 
         PlayerDataFile.setup();
         PlayerDataFile.get().options().copyDefaults(true);
@@ -51,6 +60,31 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
 
     }
+
+    public ShapedRecipe getSwordRecipe(){
+
+        ItemStack item = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta meta = item.getItemMeta();
+
+        ArrayList<String> lore = new ArrayList<String>();
+        lore.add(ChatColor.AQUA + "Right click an entity to spawn a lightning bolt!");
+        meta.setDisplayName(ChatColor.BLUE + "Lightning Sword");
+
+        item.setItemMeta(meta);
+
+        NamespacedKey key = new NamespacedKey(this, "lightning_sword");
+
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+
+        recipe.shape(" D ", " D ", " S ");
+
+        recipe.setIngredient('D', Material.DIAMOND_BLOCK);
+        recipe.setIngredient('S', Material.STICK);
+
+        return recipe;
+
+    }
+
 
     private boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -174,7 +208,7 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
     public void openAxeSelect(Player player){
 
-        String axeTitle = "Pick an axe!";
+        String axeTitle = "Choose an axe!";
 
         Inventory axeSelection = Bukkit.createInventory(player, 9, axeTitle);
 
@@ -483,16 +517,19 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
         Inventory axeMenu = Bukkit.createInventory(player, 27, "Choose your axe upgrades!");
 
-        ItemStack sharpness = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-        ItemStack sweeping = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-        ItemStack knockback = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-        ItemStack fire = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-        ItemStack unbreaking = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemStack axe = player.getInventory().getItemInMainHand();
+        ItemMeta axeMeta = axe.getItemMeta();
+
+        ItemStack sharpness = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemStack sweeping = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemStack knockback = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemStack fire = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemStack unbreaking = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemStack next = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
         ItemMeta sharpMeta = sharpness.getItemMeta();
         ItemMeta sweepMeta = sweeping.getItemMeta();
-        ItemMeta knockmMeta = knockback.getItemMeta();
+        ItemMeta knockMeta = knockback.getItemMeta();
         ItemMeta fireMeta = fire.getItemMeta();
         ItemMeta unbreakMeta = unbreaking.getItemMeta();
         ItemMeta nextMeta = next.getItemMeta();
@@ -500,7 +537,7 @@ public final class UpgradeableWeapons extends JavaPlugin {
 
         sharpMeta.setDisplayName(ChatColor.RED + "Sharpness Upgrade!");
         sweepMeta.setDisplayName(ChatColor.RED + "Sweeping Edge Upgrade!");
-        knockmMeta.setDisplayName(ChatColor.RED + "Knockback Upgrade!");
+        knockMeta.setDisplayName(ChatColor.RED + "Knockback Upgrade!");
         fireMeta.setDisplayName(ChatColor.RED + "Fire Aspect Upgrade!");
         unbreakMeta.setDisplayName(ChatColor.RED + "Unbreaking Upgrade!");
         nextMeta.setDisplayName(ChatColor.AQUA + "Next Page!");
@@ -508,8 +545,216 @@ public final class UpgradeableWeapons extends JavaPlugin {
         Economy economy = getEconomy();
 
 
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".axeData" + ".axeSharpSelected")){
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeSharpPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeSharpSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    sharpness.setType(Material.LIME_STAINED_GLASS_PANE);
+                    sharpMeta.setDisplayName(ChatColor.GREEN + "Sharpness Upgrade!");
+                    axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 5);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeSharpPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
+            }
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeSharpPaid")){
+            sharpness.setType(Material.LIME_STAINED_GLASS_PANE);
+            sharpMeta.setDisplayName(ChatColor.GREEN + "Sharpness Upgrade!");
+            axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 4);
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".axeData" + ".axeSweepingSelected")){
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeSweepingPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeSweepingSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    sweeping.setType(Material.LIME_STAINED_GLASS_PANE);
+                    sweepMeta.setDisplayName(ChatColor.GREEN + "Sweeping Edge Upgrade!");
+                    axe.addUnsafeEnchantment(Enchantment.SWEEPING_EDGE, 3);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeSweepingPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
+            }
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeSweepingPaid")){
+            sweeping.setType(Material.LIME_STAINED_GLASS_PANE);
+            sweepMeta.setDisplayName(ChatColor.GREEN + "Sweeping Edge Upgrade!");
+            axe.addUnsafeEnchantment(Enchantment.SWEEPING_EDGE, 3);
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".axeData" + ".axeKnockSelected")){
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeKnockPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeKnockSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    knockback.setType(Material.LIME_STAINED_GLASS_PANE);
+                    knockMeta.setDisplayName(ChatColor.GREEN + "Knockback Upgrade!");
+                    axe.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeKnockPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
+            }
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeKnockPaid")){
+            knockback.setType(Material.LIME_STAINED_GLASS_PANE);
+            knockMeta.setDisplayName(ChatColor.GREEN + "Knockback Upgrade!");
+            axe.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".axeData" + ".axeFireSelected")){
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeFirePaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeFireSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    fire.setType(Material.LIME_STAINED_GLASS_PANE);
+                    fireMeta.setDisplayName(ChatColor.GREEN + "Fire Aspect Upgrade!");
+                    axe.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeFirePaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
+            }
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeFirePaid")){
+            fire.setType(Material.LIME_STAINED_GLASS_PANE);
+            fireMeta.setDisplayName(ChatColor.GREEN + "Fire Aspect Upgrade!");
+            axe.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 2);
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".axeData" + ".axeUnbreakSelected")){
+            if(!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeUnbreakPaid")){
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (response.balance <= 0){
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".axeData" + ".axeUnbreakSelected", false);
+                    PlayerDataFile.save();
+                    return;
+                }
+                if(response.transactionSuccess()){
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    unbreaking.setType(Material.LIME_STAINED_GLASS_PANE);
+                    unbreakMeta.setDisplayName(ChatColor.GREEN + "Unbreaking Upgrade!");
+                    axe.addUnsafeEnchantment(Enchantment.DURABILITY, 5);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeUnbreakPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
+            }
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeUnbreakPaid")){
+            unbreaking.setType(Material.LIME_STAINED_GLASS_PANE);
+            unbreakMeta.setDisplayName(ChatColor.GREEN + "Unbreaking Upgrade!");
+            axe.addUnsafeEnchantment(Enchantment.DURABILITY, 5);
+        }
+
+
+        sharpness.setItemMeta(sharpMeta);
+        fire.setItemMeta(fireMeta);
+        knockback.setItemMeta(knockMeta);
+        sweeping.setItemMeta(sweepMeta);
+        unbreaking.setItemMeta(unbreakMeta);
+        next.setItemMeta(nextMeta);
+
+        axeMenu.setItem(10, sharpness);
+        axeMenu.setItem(11, knockback);
+        axeMenu.setItem(12, sweeping);
+        axeMenu.setItem(13, fire);
+        axeMenu.setItem(14, unbreaking);
+        axeMenu.setItem(16, next);
+
         player.openInventory(axeMenu);
 
+    }
+    public void openAxeMenu2(Player player) {
+
+        boolean EffectSelected = PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".axeData" + ".axeEffectSelected");
+
+        Inventory axeMenu = Bukkit.createInventory(player, 27, "Choose your axe upgrades! (Page 2)");
+
+        ArrayList<String> lore = new ArrayList<String>();
+        lore.add(ChatColor.AQUA + "Right click a player to effect them with a random effect!");
+
+        ItemStack axe = player.getInventory().getItemInMainHand();
+        ItemMeta axemeta = axe.getItemMeta();
+
+        ItemStack previousPage = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemStack effect = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+
+        ItemMeta previousMeta = previousPage.getItemMeta();
+        ItemMeta effectmeta = effect.getItemMeta();
+
+        previousMeta.setDisplayName(ChatColor.AQUA + "Previous Page!");
+        effectmeta.setDisplayName(ChatColor.RED + "Random Effect Upgrade!");
+
+        axe.setItemMeta(axemeta);
+        effect.setItemMeta(effectmeta);
+        previousPage.setItemMeta(previousMeta);
+
+        Economy economy = getEconomy();
+
+        if (EffectSelected) {
+            if (!PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeEffectPaid")) {
+                EconomyResponse response = economy.withdrawPlayer(player, 1000.0);
+                if (economy.getBalance(player) < 1000.0) {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                    PlayerDataFile.save();
+                    return;
+                }
+
+                if (response.transactionSuccess()) {
+                    player.sendMessage(ChatColor.GREEN + "Successfully bought the upgrade!");
+                    effect.setType(Material.LIME_STAINED_GLASS_PANE);
+                    effectmeta.setDisplayName(ChatColor.GREEN + "Random Effect Upgrade!");
+                    axemeta.setLore(lore);
+                    axe.setItemMeta(axemeta);
+                    PlayerDataFile.get().set(player.getUniqueId().toString() + ".transactions" + ".axeEffectPaid", true);
+                    PlayerDataFile.save();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't have enough money!");
+                }
+            }
+
+
+        }
+        if (PlayerDataFile.get().getBoolean(player.getUniqueId().toString() + ".transactions" + ".axeEffectPaid")){
+            effect.setType(Material.LIME_STAINED_GLASS_PANE);
+            effectmeta.setDisplayName(ChatColor.GREEN + "Random Effect Upgrade!");
+
+        }
+
+        axeMenu.setItem(10, previousPage);
+        axeMenu.setItem(12, effect);
+
+        player.openInventory(axeMenu);
     }
 
 
